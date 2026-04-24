@@ -86,7 +86,7 @@ jobs:
           }
 
           check_file "index.html"
-          check_file "app.json"
+          check_file "src/app.js"
           check_file "src/api.js"
           check_file "src/validator.js"
           check_file "package.json"
