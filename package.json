@@ -1,0 +1,25 @@
+{
+  "name": "user-explorer",
+  "version": "1.0.0",
+  "description": "Mini app vanilla JS que consume jsonplaceholder con validación, tests y UI estilo Claude.",
+  "private": true,
+  "scripts": {
+    "test": "jest --watch",
+    "test:ci": "jest --coverage --ci"
+  },
+  "devDependencies": {
+    "@babel/preset-env": "^7.24.0",
+    "babel-jest": "^29.7.0",
+    "jest": "^29.7.0"
+  },
+  "babel": {
+    "presets": [
+      ["@babel/preset-env", { "targets": { "node": "current" } }]
+    ]
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": ["**/tests/**/*.test.js"],
+    "collectCoverageFrom": ["src/validator.js", "src/api.js"]
+  }
+}

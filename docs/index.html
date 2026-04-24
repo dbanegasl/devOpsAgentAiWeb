@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Documentación · User Explorer</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet" />
+  <!-- Highlight.js para syntax highlighting -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg-0:        #0f0b17;
+      --bg-1:        #171124;
+      --bg-2:        #1f1732;
+      --bg-3:        #261d3e;
+      --border:      #2a2141;
+      --text:        #ece6f7;
+      --text-muted:  #a79ec2;
+      --accent:      #a97bff;
+      --accent-2:    #7c4dff;
+      --accent-glow: rgba(169,123,255,.25);
+      --green:       #5af78e;
+      --yellow:      #f9f871;
+      --red:         #ff6b8a;
+      --sidebar-w:   260px;
+    }
+
+    *, ::before, ::after { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      background: var(--bg-0);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-size: 15px;
+      line-height: 1.7;
+      min-height: 100vh;
+    }
+
+    /* ── Sidebar ────────────────────────────────────── */
+    .sidebar {
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      width: var(--sidebar-w);
+      background: var(--bg-1);
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+      padding: 1.5rem 1rem;
+      z-index: 100;
+    }
+
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 2rem;
+      text-decoration: none;
+    }
+
+    .brand-dot {
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      box-shadow: 0 0 14px var(--accent-glow);
+      flex-shrink: 0;
+    }
+
+    .sidebar-logo span {
+      color: var(--text);
+      font-weight: 700;
+      font-size: 1rem;
+      letter-spacing: .3px;
+    }
+
+    .nav-section {
+      font-size: .7rem;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--text-muted);
+      margin: 1.4rem 0 .4rem;
+      padding-left: .4rem;
+    }
+
+    .sidebar-nav a {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: .38rem .6rem;
+      border-radius: 8px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: .875rem;
+      transition: background .15s, color .15s;
+    }
+
+    .sidebar-nav a:hover,
+    .sidebar-nav a.active {
+      background: var(--accent-glow);
+      color: var(--text);
+    }
+
+    .sidebar-nav a i { width: 16px; text-align: center; font-size: .8rem; }
+
+    /* ── Main ───────────────────────────────────────── */
+    .main-content {
+      margin-left: var(--sidebar-w);
+      padding: 2.5rem 2rem 5rem;
+      max-width: 900px;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .main-content { margin-left: 0; padding: 1.5rem 1rem 4rem; }
+    }
+
+    /* ── Typography ─────────────────────────────────── */
+    h1, h2, h3, h4 { color: var(--text); font-weight: 700; }
+
+    h1 { font-size: 2rem; margin-bottom: .3rem; }
+    h2 {
+      font-size: 1.35rem;
+      margin-top: 3rem;
+      margin-bottom: 1rem;
+      padding-bottom: .5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+    }
+    h3 { font-size: 1.05rem; margin-top: 1.8rem; }
+    h4 { font-size: .9rem; color: var(--accent); margin-top: 1.2rem; }
+
+    p { color: #d5cce8; }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { color: #fff; }
+
+    /* ── Hero ───────────────────────────────────────── */
+    .hero {
+      background: linear-gradient(135deg, var(--bg-3) 0%, var(--bg-1) 100%);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 2rem 2.5rem;
+      margin-bottom: 2.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -60px; right: -60px;
+      width: 220px; height: 220px;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero .badge-stack { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1rem; }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      padding: .25rem .7rem;
+      border-radius: 999px;
+      font-size: .75rem;
+      font-weight: 600;
+      border: 1px solid;
+    }
+
+    .pill-violet  { background: rgba(124,77,255,.15); border-color: var(--accent-2); color: var(--accent); }
+    .pill-green   { background: rgba(90,247,142,.1);  border-color: var(--green);    color: var(--green); }
+    .pill-yellow  { background: rgba(249,248,113,.1); border-color: var(--yellow);   color: var(--yellow); }
+    .pill-neutral { background: rgba(255,255,255,.05); border-color: var(--border);  color: var(--text-muted); }
+
+    /* ── Cards ──────────────────────────────────────── */
+    .card-doc {
+      background: var(--bg-1);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.4rem 1.6rem;
+      margin-bottom: 1rem;
+    }
+
+    .card-doc h4 { margin-top: 0; }
+
+    /* ── Code blocks ────────────────────────────────── */
+    pre {
+      background: #151023 !important;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.1rem 1.3rem;
+      overflow-x: auto;
+      font-size: .83rem;
+      line-height: 1.55;
+    }
+
+    code:not(pre code) {
+      background: rgba(169,123,255,.15);
+      color: #d4baff;
+      border-radius: 5px;
+      padding: .1em .4em;
+      font-size: .85em;
+    }
+
+    /* ── Function signature ─────────────────────────── */
+    .fn-sig {
+      background: #12092c;
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent-2);
+      border-radius: 10px;
+      padding: 1rem 1.2rem;
+      margin: .8rem 0;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: .88rem;
+      color: #ceb8ff;
+      overflow-x: auto;
+    }
+
+    /* ── Params table ───────────────────────────────── */
+    .params-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .85rem;
+      margin: .6rem 0 1rem;
+    }
+
+    .params-table th {
+      text-align: left;
+      padding: .4rem .8rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-size: .7rem;
+      letter-spacing: .08em;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .params-table td {
+      padding: .5rem .8rem;
+      border-bottom: 1px dashed var(--border);
+      color: #d5cce8;
+      vertical-align: top;
+    }
+
+    .params-table tr:last-child td { border-bottom: 0; }
+    .param-name  { color: var(--accent); font-family: monospace; }
+    .param-type  { color: var(--green);  font-family: monospace; white-space: nowrap; }
+
+    /* ── Throws / Returns banners ───────────────────── */
+    .banner {
+      border-radius: 8px;
+      padding: .6rem 1rem;
+      font-size: .86rem;
+      margin: .5rem 0;
+    }
+
+    .banner-green  { background: rgba(90,247,142,.08);  border: 1px solid rgba(90,247,142,.3); }
+    .banner-red    { background: rgba(255,107,138,.08); border: 1px solid rgba(255,107,138,.3); }
+    .banner-yellow { background: rgba(249,248,113,.08); border: 1px solid rgba(249,248,113,.3); }
+    .banner-label  { font-weight: 700; margin-right: .4rem; }
+
+    /* ── Test matrix ────────────────────────────────── */
+    .test-row {
+      display: grid;
+      grid-template-columns: 2rem 1fr auto;
+      align-items: start;
+      gap: .6rem;
+      padding: .6rem 0;
+      border-bottom: 1px dashed var(--border);
+      font-size: .86rem;
+    }
+
+    .test-row:last-child { border-bottom: 0; }
+
+    .test-num {
+      color: var(--text-muted);
+      font-family: monospace;
+      font-size: .75rem;
+      padding-top: .15rem;
+    }
+
+    .test-pass { color: var(--green); white-space: nowrap; font-size: .75rem; }
+
+    /* ── Coverage bar ───────────────────────────────── */
+    .cov-bar-bg {
+      background: var(--bg-2);
+      border-radius: 999px;
+      height: 8px;
+      overflow: hidden;
+    }
+
+    .cov-bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--accent-2), var(--accent));
+    }
+
+    /* ── Mermaid-like arch diagram (CSS only) ───────── */
+    .arch-diagram {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin: 1rem 0;
+      font-size: .82rem;
+      text-align: center;
+    }
+
+    .arch-cell {
+      background: var(--bg-2);
+      padding: 1rem .5rem;
+    }
+
+    .arch-cell .icon { font-size: 1.4rem; margin-bottom: .3rem; display: block; }
+    .arch-cell .label { font-weight: 600; }
+    .arch-cell .sub { color: var(--text-muted); font-size: .75rem; }
+
+    .arch-cell.accent { background: var(--bg-3); }
+    .arch-cell.accent .icon { color: var(--accent); }
+
+    /* ── Flow arrows ────────────────────────────────── */
+    .flow {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      flex-wrap: wrap;
+      font-size: .83rem;
+      margin: .8rem 0;
+      color: var(--text-muted);
+    }
+
+    .flow-box {
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: .3rem .75rem;
+      color: var(--text);
+      font-family: monospace;
+    }
+
+    .flow-arrow { color: var(--accent-2); font-size: 1rem; }
+
+    /* ── Section divider ────────────────────────────── */
+    hr.divider {
+      border: 0;
+      border-top: 1px solid var(--border);
+      margin: 2.5rem 0;
+    }
+
+    /* ── Footer ─────────────────────────────────────── */
+    footer {
+      margin-left: var(--sidebar-w);
+      padding: 1.5rem 2rem;
+      border-top: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: .82rem;
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: space-between;
+    }
+
+    @media (max-width: 768px) { footer { margin-left: 0; } }
+  </style>
+</head>
+<body>
+
+<!-- ════════════════════════ SIDEBAR ════════════════════════ -->
+<aside class="sidebar">
+  <a href="#top" class="sidebar-logo">
+    <span class="brand-dot"></span>
+    <span>User Explorer</span>
+  </a>
+
+  <nav class="sidebar-nav">
+    <div class="nav-section">General</div>
+    <a href="#overview"><i class="fa-solid fa-house-chimney"></i> Introducción</a>
+    <a href="#architecture"><i class="fa-solid fa-diagram-project"></i> Arquitectura</a>
+    <a href="#structure"><i class="fa-solid fa-folder-tree"></i> Estructura</a>
+
+    <div class="nav-section">Módulos</div>
+    <a href="#validator"><i class="fa-solid fa-shield-check"></i> validator.js</a>
+    <a href="#api"><i class="fa-solid fa-plug"></i> api.js</a>
+    <a href="#app"><i class="fa-solid fa-window-maximize"></i> app.js</a>
+
+    <div class="nav-section">Testing</div>
+    <a href="#tests"><i class="fa-solid fa-flask"></i> Casos de prueba</a>
+    <a href="#coverage"><i class="fa-solid fa-chart-bar"></i> Cobertura</a>
+
+    <div class="nav-section">Despliegue</div>
+    <a href="#quickstart"><i class="fa-solid fa-rocket"></i> Quick Start</a>
+    <a href="#deploy"><i class="fa-brands fa-github"></i> GitHub Pages</a>
+  </nav>
+</aside>
+
+<!-- ════════════════════════ CONTENT ════════════════════════ -->
+<main class="main-content" id="top">
+
+  <!-- Hero -->
+  <div class="hero">
+    <h1>User Explorer</h1>
+    <p style="color:var(--text-muted); margin-bottom:0;">
+      Aplicación web en <strong style="color:var(--text)">JavaScript vanilla</strong> que
+      consume la API pública de
+      <a href="https://jsonplaceholder.typicode.com" target="_blank" rel="noopener">jsonplaceholder</a>,
+      valida los datos recibidos y los presenta con un diseño oscuro moderno.
+    </p>
+    <div class="badge-stack">
+      <span class="pill pill-violet"><i class="fa-brands fa-js"></i> Vanilla JS</span>
+      <span class="pill pill-violet"><i class="fa-solid fa-bolt"></i> Bootstrap 5</span>
+      <span class="pill pill-green"><i class="fa-solid fa-check"></i> 22 tests · Jest</span>
+      <span class="pill pill-yellow"><i class="fa-solid fa-chart-simple"></i> 94% cobertura</span>
+      <span class="pill pill-neutral"><i class="fa-brands fa-github"></i> GitHub Pages</span>
+      <span class="pill pill-neutral"><i class="fa-solid fa-ban"></i> Sin bundler</span>
+    </div>
+  </div>
+
+  <!-- ─── OVERVIEW ──────────────────────────────────── -->
+  <section id="overview">
+    <h2><i class="fa-solid fa-house-chimney" style="color:var(--accent)"></i> Introducción</h2>
+
+    <p>
+      <strong>User Explorer</strong> es una aplicación frontend minimalista que demuestra buenas
+      prácticas de desarrollo sin necesidad de un framework ni una herramienta de build:
+      módulos ES nativos en el navegador, validación de datos en capa de API, manejo
+      explícito de errores en UI y una suite de tests unitarios con Jest.
+    </p>
+
+    <h3>Tecnologías</h3>
+    <div class="row g-3">
+      <div class="col-md-6">
+        <div class="card-doc">
+          <h4><i class="fa-solid fa-display me-2"></i>Frontend</h4>
+          <ul style="padding-left:1.2rem; color:#d5cce8; margin:0;">
+            <li>HTML5 + ES Modules (sin transpilación en navegador)</li>
+            <li>Bootstrap 5.3 — layout, tabla, modal (CDN)</li>
+            <li>FontAwesome 6.5 — iconografía (CDN)</li>
+          </ul>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card-doc">
+          <h4><i class="fa-solid fa-flask me-2"></i>Testing</h4>
+          <ul style="padding-left:1.2rem; color:#d5cce8; margin:0;">
+            <li>Jest 29 — test runner</li>
+            <li>babel-jest + @babel/preset-env — soporte ESM en Node</li>
+            <li>Mocks de <code>fetch</code> con <code>jest.fn()</code></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── ARCHITECTURE ─────────────────────────────── -->
+  <section id="architecture">
+    <h2><i class="fa-solid fa-diagram-project" style="color:var(--accent)"></i> Arquitectura</h2>
+
+    <p>La aplicación sigue un flujo unidireccional de tres capas:</p>
+
+    <div class="arch-diagram">
+      <div class="arch-cell accent">
+        <span class="icon"><i class="fa-solid fa-window-maximize"></i></span>
+        <div class="label">UI Layer</div>
+        <div class="sub">app.js / index.html</div>
+      </div>
+      <div class="arch-cell accent">
+        <span class="icon"><i class="fa-solid fa-plug"></i></span>
+        <div class="label">API Layer</div>
+        <div class="sub">api.js</div>
+      </div>
+      <div class="arch-cell accent">
+        <span class="icon"><i class="fa-solid fa-shield-check"></i></span>
+        <div class="label">Validation Layer</div>
+        <div class="sub">validator.js</div>
+      </div>
+    </div>
+
+    <div class="flow">
+      <span class="flow-box">Usuario pulsa botón</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-box">app.js</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-box">fetchUsers()</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-box">fetch(API)</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-box">validateUser()</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-box">renderUsers()</span>
+    </div>
+
+    <h3>Principios de diseño</h3>
+    <div class="card-doc">
+      <ul style="margin:0; padding-left:1.2rem; color:#d5cce8;">
+        <li><strong>Separación de responsabilidades</strong> — cada módulo tiene un único propósito.</li>
+        <li><strong>Fail fast</strong> — los datos se validan antes de llegar a la UI; nunca se muestran datos parciales.</li>
+        <li><strong>Error surfacing</strong> — todos los errores de red, servidor y validación se presentan al usuario de forma descriptiva.</li>
+        <li><strong>Sin efectos secundarios silenciosos</strong> — los usuarios inválidos descartados se registran en consola con <code>console.warn</code>.</li>
+        <li><strong>Sin estado global mutable</strong> — la UI se reconstruye completamente con cada carga.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ─── STRUCTURE ─────────────────────────────────── -->
+  <section id="structure">
+    <h2><i class="fa-solid fa-folder-tree" style="color:var(--accent)"></i> Estructura de archivos</h2>
+<pre><code class="language-text">├── index.html          ← Punto de entrada HTML, CDN links, Bootstrap modal
+├── src/
+│   ├── app.js          ← Wiring UI: eventos, render, modal
+│   ├── api.js          ← Capa HTTP: fetchUsers(), fetchUserById(id)
+│   └── validator.js    ← validateUser(user) → { valid, errors }
+├── tests/
+│   ├── validator.test.js  ← 10 casos de validación
+│   └── api.test.js        ← 12 casos con mocks de fetch
+├── docs/
+│   └── index.html      ← Esta documentación
+├── package.json        ← Scripts + configuración Jest + Babel
+└── README.md           ← Guía rápida de instalación y despliegue</code></pre>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- ─── VALIDATOR ─────────────────────────────────── -->
+  <section id="validator">
+    <h2><i class="fa-solid fa-shield-check" style="color:var(--accent)"></i> validator.js</h2>
+
+    <p>Módulo de validación puro, sin efectos secundarios ni dependencias externas.</p>
+
+    <h3>validateUser(user)</h3>
+    <div class="fn-sig">validateUser(user: object | null | undefined): { valid: boolean, errors: string[] }</div>
+
+    <p>Verifica que el objeto usuario cumpla todos los campos mínimos requeridos por la UI.</p>
+
+    <table class="params-table">
+      <thead>
+        <tr><th>Parámetro</th><th>Tipo</th><th>Descripción</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="param-name">user</td>
+          <td class="param-type">object | null | undefined</td>
+          <td>El objeto usuario a validar. Se acepta cualquier valor para devolver un error controlado.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="banner banner-green">
+      <span class="banner-label" style="color:var(--green)">@returns</span>
+      <code>{ valid: boolean, errors: string[] }</code> — <code>valid</code> es <code>true</code> solo
+      si el array <code>errors</code> está vacío.
+    </div>
+
+    <h4>Reglas de validación</h4>
+    <table class="params-table">
+      <thead>
+        <tr><th>Campo</th><th>Regla</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="param-name">name</td><td>string no vacío (trim)</td></tr>
+        <tr><td class="param-name">email</td><td>string no vacío + regex <code>/^[^\s@]+@[^\s@]+\.[^\s@]+$/</code></td></tr>
+        <tr><td class="param-name">address.city</td><td>string no vacío (trim)</td></tr>
+        <tr><td class="param-name">address.geo.lat</td><td>presente, no null, no string vacío</td></tr>
+        <tr><td class="param-name">address.geo.lng</td><td>presente, no null, no string vacío</td></tr>
+      </tbody>
+    </table>
+
+    <h4>Ejemplo</h4>
+<pre><code class="language-javascript">import { validateUser } from './src/validator.js';
+
+const result = validateUser({
+  name: 'Ada Lovelace',
+  email: 'ada@example.com',
+  address: { city: 'London', geo: { lat: '51.5', lng: '-0.1' } }
+});
+// → { valid: true, errors: [] }
+
+const bad = validateUser({ name: '', email: 'not-an-email' });
+// → {
+//     valid: false,
+//     errors: [
+//       'name is required and must be a non-empty string',
+//       'email format is invalid',
+//       'address is required'
+//     ]
+//   }</code></pre>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- ─── API ───────────────────────────────────────── -->
+  <section id="api">
+    <h2><i class="fa-solid fa-plug" style="color:var(--accent)"></i> api.js</h2>
+
+    <p>
+      Capa de acceso a datos. Envuelve <code>fetch</code> con manejo explícito de
+      errores de red, status HTTP y JSON malformado. Delega la validación semántica
+      a <code>validator.js</code>.
+    </p>
+
+    <!-- fetchUsers -->
+    <h3>fetchUsers()</h3>
+    <div class="fn-sig">fetchUsers(): Promise&lt;object[]&gt;</div>
+
+    <p>
+      Llama a <code>GET /users</code>, parsea la respuesta y filtra los usuarios inválidos.
+      Si ningún usuario pasa la validación, lanza un error con el detalle completo.
+    </p>
+
+    <table class="params-table">
+      <thead><tr><th>Parámetro</th><th>Tipo</th><th>Descripción</th></tr></thead>
+      <tbody>
+        <tr><td class="param-name">—</td><td class="param-type">void</td><td>Sin parámetros.</td></tr>
+      </tbody>
+    </table>
+
+    <div class="banner banner-green">
+      <span class="banner-label" style="color:var(--green)">@returns</span>
+      <code>Promise&lt;object[]&gt;</code> — Array de usuarios que superaron la validación.
+    </div>
+    <div class="banner banner-red">
+      <span class="banner-label" style="color:var(--red)">@throws</span>
+      <code>Error</code> si: red caída · status HTTP no-2xx · cuerpo vacío ·
+      JSON malformado · respuesta no es array · todos los usuarios son inválidos.
+    </div>
+
+    <div class="banner banner-yellow" style="margin-top:.8rem;">
+      <span class="banner-label" style="color:var(--yellow)">Comportamiento parcial</span>
+      Si <em>algunos</em> usuarios son inválidos se devuelven solo los válidos.
+      Los descartados se notifican via <code>console.warn</code> con el detalle de errores.
+    </div>
+
+    <!-- fetchUserById -->
+    <h3>fetchUserById(id)</h3>
+    <div class="fn-sig">fetchUserById(id: number | string): Promise&lt;object&gt;</div>
+
+    <p>Llama a <code>GET /users/:id</code> y valida el objeto devuelto.</p>
+
+    <table class="params-table">
+      <thead><tr><th>Parámetro</th><th>Tipo</th><th>Descripción</th></tr></thead>
+      <tbody>
+        <tr>
+          <td class="param-name">id</td>
+          <td class="param-type">number | string</td>
+          <td>Identificador del usuario. Requerido; lanza error si está vacío/null/undefined.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="banner banner-green">
+      <span class="banner-label" style="color:var(--green)">@returns</span>
+      <code>Promise&lt;object&gt;</code> — Objeto usuario validado.
+    </div>
+    <div class="banner banner-red">
+      <span class="banner-label" style="color:var(--red)">@throws</span>
+      <code>Error</code> si: <code>id</code> ausente · red caída · status no-2xx ·
+      JSON inválido · usuario no pasa validación.
+    </div>
+
+    <h4>Ejemplo</h4>
+<pre><code class="language-javascript">import { fetchUsers, fetchUserById } from './src/api.js';
+
+// Cargar listado
+const users = await fetchUsers();
+console.log(users.length); // hasta 10
+
+// Cargar detalle
+const user = await fetchUserById(3);
+console.log(user.address.geo); // { lat: '-68.6102', lng: '-47.0653' }
+
+// Manejo de error
+try {
+  await fetchUserById(999);
+} catch (err) {
+  console.error(err.message); // Server responded with status 404 Not Found
+}</code></pre>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- ─── APP ───────────────────────────────────────── -->
+  <section id="app">
+    <h2><i class="fa-solid fa-window-maximize" style="color:var(--accent)"></i> app.js</h2>
+
+    <p>
+      Orquesta la interacción entre el DOM y la capa API. No contiene lógica de negocio
+      ni acceso directo a red; toda esa responsabilidad está delegada a <code>api.js</code>.
+    </p>
+
+    <h3>Responsabilidades</h3>
+    <div class="card-doc">
+      <ul style="margin:0; padding-left:1.2rem; color:#d5cce8;">
+        <li>Escucha el click de <strong>"Cargar usuarios"</strong> → llama <code>fetchUsers()</code> → llama <code>renderUsers()</code>.</li>
+        <li>Escucha clicks en los botones de ojo de la tabla (delegación de eventos) → llama <code>fetchUserById(id)</code> → abre el modal Bootstrap.</li>
+        <li>Muestra spinner durante las peticiones y deshabilita el botón para evitar llamadas duplicadas.</li>
+        <li>En caso de error, muestra un mensaje descriptivo y limpia la tabla para evitar estado inconsistente.</li>
+        <li>Escapa todo el HTML interpolado con <code>escapeHtml()</code> para prevenir XSS.</li>
+        <li>Genera el enlace de Google Maps con las coordenadas <code>geo.lat</code> y <code>geo.lng</code> del usuario.</li>
+      </ul>
+    </div>
+
+    <h3>Seguridad: prevención de XSS</h3>
+    <p>
+      Todos los datos externos se pasan por <code>escapeHtml()</code> antes de
+      interpolarse en el DOM. Esta función escapa los caracteres
+      <code>&amp;</code> <code>&lt;</code> <code>&gt;</code> <code>"</code> <code>'</code>.
+    </p>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- ─── TESTS ─────────────────────────────────────── -->
+  <section id="tests">
+    <h2><i class="fa-solid fa-flask" style="color:var(--accent)"></i> Casos de prueba</h2>
+
+    <h3>validator.test.js — 10 casos</h3>
+    <div class="card-doc">
+      <div class="test-row">
+        <span class="test-num">01</span>
+        <span>Usuario completo y válido devuelve <code>{ valid: true, errors: [] }</code></span>
+        <span class="test-pass"><i class="fa-solid fa-circle-check"></i> PASS</span>
+      </div>
+      <div class="test-row">
+        <span class="test-num">02</span>
+        <span>Email con formato inválido (<code>"not-an-email"</code>) produce error específico</span>
+        <span class="test-pass"><i class="fa-solid fa-circle-check"></i> PASS</span>
+      </div>
+      <div class="test-row">
+        <span class="test-num">03a</span>
+        <span>Nombre con solo espacios produce error específico</span>
+        <span class="test-pass"><i class="fa-solid fa-circle-check"></i> PASS</span>
+      </div>
+      <div class="test-row">
+        <span class="test-num">03b</span>
+        <span>Campo <code>name</code> ausente produce error específico</span>
+        <span class="test-pass"><i class="fa-solid fa-circle-check"></i> PASS</span>
+      </div>
+      <div class="test-row">
+        <span class="test-num">04a</span>
+        <span><code>address.city</code> vacío produce error específico</span>
+        <span class="test-pass"><i class="fa-solid fa-circle-check"></i> PASS</span>
+      </div>
+      <div class="test-row">
+        <span class="test-num">04b</span>
+        <span><code>address.city</code> ausente produce error específico</span>
+        <span class="test-pass"><i class="fa-solid fa-circle-check"></i> PASS</span>
+      </div>
+      <div class="test-row">
+        <span class="test-num">05a</span>
+        <span><code>address.geo</code> ausente produce error específico</span>
+        <span class="test-pass"><i class="fa-solid fa-circle-check"></i> PASS</span>
+      </div>
+      <div class="test-row">
+        <span class="test-num">05b</span>
+        <span><code>address.geo</code> incompleto (sin <code>lng</code>) produce error específico</span>
+        <span class="test-pass"><i class="fa-solid fa-circle-check"></i> PASS</span>
+      </div>
+      <div class="test-row">
+        <span class="test-num">06a</span>
+        <span>Usuario <code>null</code> devuelve error controlado sin lanzar excepción</span>
+        <span class="test-pass"><i class="fa-solid fa-circle-check"></i> PASS</span>
+      </div>
+      <div class="test-row">
+        <span class="test-num">06b</span>
+        <span>Usuario <code>undefined</code> devuelve error controlado sin lanzar excepción</span>
+        <span class="test-pass"><i class="fa-solid fa-circle-check"></i> PASS</span>
+      </div>
+    </div>
+
+    <h3>api.test.js — 12 casos</h3>
+    <div class="card-doc">
+      <div class="test-row">
+        <span class="test-num">07</span>
+        <span>Red caída (<code>fetch</code> rechaza) lanza error descriptivo con <code>/network error/i</code></span>
+        <span class="test-pass"><i class="fa-solid fa-circle-check"></i> PASS</span>
+      </div>
+      <div class="test-row">
+        <span class="test-num">08</span>
+        <span>Respuesta HTTP 500 lanza error con el status code</span>
+        <span class="test-pass"><i class="fa-solid fa-circle-check"></i> PASS</span>
+      </div>
+      <div class="test-row">
+        <span class="test-num">09a</span>
+        <span>Cuerpo vacío lanza <code>/empty response/i</code></span>
+        <span class="test-pass"><i class="fa-solid fa-circle-check"></i> PASS</span>
+      </div>
+      <div class="test-row">
+        <span class="test-num">09b</span>
+        <span>JSON malformado lanza <code>/malformed json/i</code></span>
+        <span class="test-pass"><i class="fa-solid fa-circle-check"></i> PASS</span>
+      </div>
+      <div class="test-row">
+        <span class="test-num">10a</span>
+        <span>Array mixto (1 válido + 1 inválido) devuelve solo el válido</span>
+        <span class="test-pass"><i class="fa-solid fa-circle-check"></i> PASS</span>
+      </div>
+      <div class="test-row">
+        <span class="test-num">10b</span>
+        <span>Array con todos los usuarios inválidos lanza error de validación</span>
+        <span class="test-pass"><i class="fa-solid fa-circle-check"></i> PASS</span>
+      </div>
+      <div class="test-row">
+        <span class="test-num">11</span>
+        <span>Respuesta que no es array lanza <code>/expected an array/i</code></span>
+        <span class="test-pass"><i class="fa-solid fa-circle-check"></i> PASS</span>
+      </div>
+      <div class="test-row">
+        <span class="test-num">12</span>
+        <span><code>fetchUserById</code> con <code>id</code> vacío lanza <code>/id is required/i</code></span>
+        <span class="test-pass"><i class="fa-solid fa-circle-check"></i> PASS</span>
+      </div>
+      <div class="test-row">
+        <span class="test-num">13</span>
+        <span><code>fetchUserById</code> con respuesta válida devuelve el usuario</span>
+        <span class="test-pass"><i class="fa-solid fa-circle-check"></i> PASS</span>
+      </div>
+      <div class="test-row">
+        <span class="test-num">14</span>
+        <span><code>fetchUserById</code> con usuario inválido lanza <code>/invalid user data/i</code></span>
+        <span class="test-pass"><i class="fa-solid fa-circle-check"></i> PASS</span>
+      </div>
+      <div class="test-row">
+        <span class="test-num">15</span>
+        <span><code>fetchUserById</code> con HTTP 404 lanza error con status</span>
+        <span class="test-pass"><i class="fa-solid fa-circle-check"></i> PASS</span>
+      </div>
+      <div class="test-row">
+        <span class="test-num">16</span>
+        <span><code>fetchUserById</code> con red caída lanza <code>/network error/i</code></span>
+        <span class="test-pass"><i class="fa-solid fa-circle-check"></i> PASS</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── COVERAGE ─────────────────────────────────── -->
+  <section id="coverage">
+    <h2><i class="fa-solid fa-chart-bar" style="color:var(--accent)"></i> Cobertura</h2>
+
+    <p>Generada con <code>jest --coverage --ci</code>.</p>
+
+    <div class="card-doc">
+      <div class="mb-3">
+        <div class="d-flex justify-content-between mb-1" style="font-size:.85rem;">
+          <span><code>api.js</code></span>
+          <span style="color:var(--green)">97.6% statements · 92% branches · 100% functions</span>
+        </div>
+        <div class="cov-bar-bg"><div class="cov-bar-fill" style="width:97.6%"></div></div>
+      </div>
+      <div>
+        <div class="d-flex justify-content-between mb-1" style="font-size:.85rem;">
+          <span><code>validator.js</code></span>
+          <span style="color:var(--green)">88.5% statements · 91.7% branches · 100% functions</span>
+        </div>
+        <div class="cov-bar-bg"><div class="cov-bar-fill" style="width:88.5%"></div></div>
+      </div>
+    </div>
+
+    <p style="color:var(--text-muted); font-size:.85rem;">
+      El 100% de funciones exportadas está cubierto. Las líneas no cubiertas son rutas
+      de error de bajo nivel en la lectura del body (<code>response.text()</code>) que
+      solo se pueden simular con un mock de nivel de Stream, fuera del alcance necesario.
+    </p>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- ─── QUICKSTART ────────────────────────────────── -->
+  <section id="quickstart">
+    <h2><i class="fa-solid fa-rocket" style="color:var(--accent)"></i> Quick Start</h2>
+
+    <h3>1. Instalar dependencias de desarrollo</h3>
+<pre><code class="language-bash">npm install</code></pre>
+
+    <h3>2. Ejecutar la aplicación en local</h3>
+    <p>
+      El proyecto usa módulos ES nativos, por lo que necesita un servidor HTTP
+      (no <code>file://</code>):
+    </p>
+<pre><code class="language-bash"># Python 3
+python3 -m http.server 8080
+
+# Node.js (npx)
+npx serve .
+
+# Visita → http://localhost:8080</code></pre>
+
+    <h3>3. Ejecutar los tests</h3>
+<pre><code class="language-bash"># Modo interactivo (watch)
+npm test
+
+# CI — una pasada con cobertura
+npm run test:ci</code></pre>
+  </section>
+
+  <!-- ─── DEPLOY ───────────────────────────────────── -->
+  <section id="deploy">
+    <h2><i class="fa-brands fa-github" style="color:var(--accent)"></i> Despliegue en GitHub Pages</h2>
+
+    <p>El proyecto no requiere build step, por lo que el despliegue es directo:</p>
+
+    <div class="card-doc">
+      <ol style="padding-left:1.2rem; color:#d5cce8; margin:0; line-height:2;">
+        <li>Sube el repositorio a GitHub.</li>
+        <li>Ve a <strong>Settings → Pages</strong>.</li>
+        <li>En <em>Source</em>, selecciona la rama <code>main</code> y la carpeta <code>/ (root)</code>.</li>
+        <li>GitHub publicará en <code>https://&lt;usuario&gt;.github.io/&lt;repo&gt;/</code>.</li>
+        <li>La documentación estará disponible en <code>/docs/</code> si activas la opción correspondiente.</li>
+      </ol>
+    </div>
+
+    <div class="banner banner-yellow" style="margin-top:1rem;">
+      <span class="banner-label" style="color:var(--yellow)">Nota</span>
+      <code>node_modules/</code> y <code>coverage/</code> deben estar en <code>.gitignore</code>
+      para no publicarlos.
+    </div>
+
+<pre><code class="language-gitignore">node_modules/
+coverage/</code></pre>
+  </section>
+
+</main>
+
+<!-- ════════════════════════ FOOTER ════════════════════════ -->
+<footer>
+  <span>User Explorer · Documentación técnica</span>
+  <span>JavaScript Vanilla · Bootstrap 5 · Jest 29</span>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>
+  hljs.highlightAll();
+
+  // Active sidebar link on scroll
+  const sections = document.querySelectorAll('section[id], div[id="top"]');
+  const links = document.querySelectorAll('.sidebar-nav a');
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          links.forEach((l) => l.classList.remove('active'));
+          const active = document.querySelector(`.sidebar-nav a[href="#${entry.target.id}"]`);
+          if (active) active.classList.add('active');
+        }
+      });
+    },
+    { rootMargin: '-30% 0px -60% 0px' }
+  );
+
+  sections.forEach((s) => observer.observe(s));
+</script>
+</body>
+</html>
